@@ -30,6 +30,7 @@ class Config:
     special_databases = []
 
     backup_to_cloud: bool
+    backup_mount_path: str
     backup_cloud_path: str
     backup_cloud_uri: str
 
@@ -93,7 +94,8 @@ class Config:
         section = 'Transfer to cloud params'
         self.backup_to_cloud = self.__get_or_bool(section, 'backup_to_cloud', False)
         if self.backup_to_cloud:
-            self.backup_cloud_path = self.__get_or_error(section, 'backup_cloud_path')
+            self.backup_mount_path = self.__get_or_error(section, 'backup_mount_path')
+            self.backup_cloud_path = self.__get_or_default_str(section, 'backup_cloud_path', default=self.backup_mount_path)
             self.backup_cloud_uri = self.__get_or_error(section, 'backup_cloud_uri')
         section = 'Autoclear local params'
         self.autoclean_local = self.__get_or_bool(section, 'autoclean_local', True)

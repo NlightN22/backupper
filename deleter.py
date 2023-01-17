@@ -13,7 +13,7 @@ class Deleter:
     
     def __delete_files_by_date(self, storage_time: int, path: str):
         if self.__is_path_exist(path):
-            files = [os.path.join(path, filename) for filename in os.listdir(path)]
+            files = [ i for i in (os.path.join(path, filename) for filename in os.listdir(path)) if os.path.isfile(i)]
             now = time.time()
             if self.config.test_mode:
                 self.logger.log("Files {} at {}".format(files, path))
