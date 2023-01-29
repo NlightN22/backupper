@@ -74,7 +74,7 @@ class WebdavTransferer():
         command_to_mount = "mount -t davfs {} {}".format(self.mount_uri, self.mount_path)
         timeout = 5
         try:
-            subprocess.check_output(command_to_mount, stderr=subprocess.STDOUT, text=True, timeout=timeout, shell=True)
+            subprocess.check_output(command_to_mount, stderr=subprocess.STDOUT, universal_newlines=True, timeout=timeout, shell=True)
             self.logger.log("Mount {}".format(self.mount_path))
             return 0
         except subprocess.TimeoutExpired as e:

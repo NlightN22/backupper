@@ -65,8 +65,10 @@ class MySQLBackupper:
         #get_db_command = "mysql -e 'show databases' -s --skip-column-names"
         get_db_command = "mysql -e 'show databases' -s --skip-column-names "
         try:
-            result = subprocess.check_output(get_db_command, stderr=subprocess.STDOUT, text=True, timeout=5, shell=True)
+            result = subprocess.check_output(get_db_command, stderr=subprocess.STDOUT, universal_newlines=True, timeout=5, shell=True) 
             db_list = result.split("\n")
+            while('' in db_list):
+                db_list.remove('')
             self.logger.log("Get databases: {}".format(db_list))
             return db_list
         except subprocess.CalledProcessError or subprocess.TimeoutExpired:

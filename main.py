@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import os.path
 from config_parser import Config
 from logger import Logger
@@ -48,8 +48,7 @@ if __name__ == "__main__":
         if result != 0:
             backup_file_status = 1
             logger.error("Backup error {}".format(result))
-        else:
-            copy_to_cloud(archive_name)
+        copy_to_cloud(archive_name)
 
     if backup_mysql:
         backupper_mysql_db = MySQLBackupper()
@@ -64,8 +63,7 @@ if __name__ == "__main__":
                 if result_db != 0:
                     backup_db_status = 1
                     logger.error("Backup error {} {}".format(filename, result_db))
-                else:
-                    copy_to_cloud(filename)
+                copy_to_cloud(filename)
 
     if config.autoclean_local:
         logger.log("Try to delete old local files")

@@ -67,7 +67,7 @@ class Emailer:
         obj = MIMEBase('application','octet-stream')
         obj.set_payload((attachment).read())
         encoders.encode_base64(obj)
-        obj.add_header('Content-Disposition',"attachment; filename= "+file)
+        obj.add_header('Content-Disposition',"attachment; filename="+ self.logger + ".log")
         return obj
 
     def __send_email(self, my_message: str):
