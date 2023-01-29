@@ -8,3 +8,9 @@ Create backups at linux systems. Autocopy to remote storages, autoclear old back
 - Allow exec for main.py.
 - Start main.py manually to check script work.
 - Add main.py to /etc/crontab.
+
+## Addition
+You can set davfs cache to zero if don't have enough free space at /etc/davfs2/davfs2.conf.
+Set:
+cache_size 0
+delay_upload 0
