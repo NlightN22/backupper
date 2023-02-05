@@ -7,7 +7,6 @@ from config_parser import Config
 config = Config()
 runner = Runner()
 
-
 class MySQLBackupper:
     def __init__(self, logger_in: Logger = "") -> None:
         self.all_databases = config.all_databases

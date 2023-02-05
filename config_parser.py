@@ -29,12 +29,6 @@ class Config:
     all_databases: bool
     special_databases = []
 
-    backup_to_cloud: bool
-    backup_mount_path: str
-    backup_cloud_path: str
-    backup_cloud_uri: str
-
-
     autoclean_local: bool
     local_time: int
 
@@ -57,7 +51,8 @@ class Config:
         self.__read_all_params()
 
     def __validate_sections(self):
-        sections = ['E-mail params', 'Local params', 'Backup files params', 'Backup mysql params', 'Transfer to cloud params',
+        sections = ['E-mail params', 'Local params', 'Backup files params', 'Backup mysql params', 
+        'Cloud params', 'Transfer client davfs2', 'Transfer client ssh',
         'Autoclear local params', 'Autoclear remote params', 'Script params']
         for section in sections:
             result: bool = self.current.has_section(section)
@@ -91,12 +86,28 @@ class Config:
         if self.backup_mysql:
             self.all_databases = self.__get_or_bool(section, 'all_databases', True)
             self.special_databases = self.__get_or_empty_list(section, 'special_databases')
-        section = 'Transfer to cloud params'
-        self.backup_to_cloud = self.__get_or_bool(section, 'backup_to_cloud', False)
-        if self.backup_to_cloud:
-            self.backup_mount_path = self.__get_or_error(section, 'backup_mount_path')
-            self.backup_cloud_path = self.__get_or_default_str(section, 'backup_cloud_path', default=self.backup_mount_path)
-            self.backup_cloud_uri = self.__get_or_error(section, 'backup_cloud_uri')
+        section = 'Cloud params'
+        self.transfer_client = self.__get_str_or_false(section, 'transfer_client')
+        if self.transfer_client != False:
+            self.backup_to_cloud = True
+            if self.transfer_client == "davfs2":
+                section = 'Transfer client davfs2'
+                self.backup_cloud_uri = self.__get_or_error(section, 'backup_cloud_uri')
+                self.backup_mount_path = self.__get_or_error(section, 'backup_mount_path')
+                self.backup_cloud_path = self.__get_or_default_str(section, 'backup_cloud_path', default=self.backup_mount_path)
+            if self.transfer_client == "ssh":
+                section = 'Transfer client ssh'
+                self.ssh_username = self.__get_or_error(section, 'ssh_username')
+                self.ssh_hostname = self.__get_or_error(section, 'ssh_hostname')
+                self.backup_cloud_path = self.__get_or_error(section, 'backup_cloud_path')
+            # if self.transfer_client == "webdav3":
+            #     section = 'Transfer client webdav3'
+            #     self.cloud_hostname = self.__get_or_error(section, 'cloud_hostname')
+            #     self.cloud_login = self.__get_or_error(section, 'cloud_login')
+            #     self.cloud_password = self.__get_or_error(section, 'cloud_password')
+            #     self.backup_cloud_path = self.__get_or_error(section, 'backup_cloud_path')
+        else:
+            self.backup_to_cloud = False
         section = 'Autoclear local params'
         self.autoclean_local = self.__get_or_bool(section, 'autoclean_local', True)
         if self.autoclean_local:
@@ -110,6 +121,12 @@ class Config:
         self.test_mode = self.__get_or_bool(section, 'test_mode', False)
 
     def __get_or_default_str(self, section, param , default = ''):
+        try:
+            return self.current.get(section, param)
+        except configparser.NoOptionError:
+            return default
+
+    def __get_str_or_false(self, section, param , default = False):
         try:
             return self.current.get(section, param)
         except configparser.NoOptionError:

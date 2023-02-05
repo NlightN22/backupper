@@ -4,6 +4,13 @@ import time
 from logger import Logger
 
 class Runner:
+    """ Run commands in shell
+    Get 
+        command: str, 
+        logger: Logger, by deafult import from logger
+        exclude_errors: list, exclude array list of errors to output in logger
+    Return error status from shell Int
+    """
     def run(self, bashCommand: str, logger_in: Logger = "", exclude_errors: list = []):
         if logger_in == "":
             logger = Logger()

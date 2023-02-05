@@ -4,14 +4,18 @@ from config_parser import Config
 from logger import Logger
 from emailer import Emailer
 import backupper_files
-from webdav_transfer import WebdavTransferer
+from davfs2_transfer import Davfs2Transfer
+from ssh_transfer import SshTransfer
 from backupper_mysql_db import MySQLBackupper
 from deleter import Deleter
 
 config = Config()
 logger = Logger()
 deleter = Deleter()
-webdav = WebdavTransferer(config)
+if config.transfer_client == "davfs2":
+    transferer = Davfs2Transfer(config)
+elif config.transfer_client == "ssh":
+    transferer = SshTransfer(config)
 backup_files = config.backup_files
 backup_local_path = config.backup_local_path
 backup_mysql = config.backup_mysql
@@ -26,14 +30,15 @@ def copy_to_cloud(filename: str):
     if config.backup_to_cloud:
         logger.log("Try to copy backup files \"{}*\" to \"{}\"".format(filename, config.backup_cloud_path))
         try:
-            result_copy = webdav.copy_to_webdav(filename)
+            result_copy = transferer.upload_to_remote(filename)
             if result_copy != 0:
                 logger.error("Error copy to cloud {}".format(result_copy))
-            return False
+                return False
         except Exception as e:
             logger.error(str(e))
             return False
-    return True
+        return True
+    return False
 
 def control_local_backup_path():
     if not is_path_exist(backup_local_path):
@@ -71,16 +76,20 @@ if __name__ == "__main__":
             deleter.delete_backup(config.backup_local_path, config.local_time)
         except Exception as e:
             logger.error(str(e))
+    else:
+        logger.log("Autolean local is disabled at config.ini. Go next")
     
     if config.backup_to_cloud and config.autoclean_remote:
         logger.log("Try to delete old remote files")
-        if webdav.error_status == False:
+        if transferer.error_status == False:
             try:
-                deleter.delete_backup(config.backup_cloud_path, config.remote_time)
+                transferer.delete_from_remote(config.backup_cloud_path, config.remote_time)
             except Exception as e:
                 logger.error(str(e))
         else:
-            logger.log("Can't delete remote files - WebdavTransferer in error state")
+            logger.log("Can't delete remote files - Transferer in error state")
+    else:
+        logger.log("Backup to cloud or autolean is disabled at config.ini. Go next")
 
     if send_email:
         logger.log("Try to send report to e-mail")
